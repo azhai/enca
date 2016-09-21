@@ -150,9 +150,11 @@ process_file(EncaAnalyser an,
       err = convert(file, result);
     else {
       if (enca_errno(an) != ENCA_EEMPTY) {
-        fprintf(stderr, "%s: Cannot convert `%s' from unknown encoding\n",
-                        program_name,
-                        ffname_r(file->name));
+            /* try iconv */
+            if (execl("/usr/bin/iconv", "iconv","-f", "gbk", "-t", "UTF-8", "-c", ffname_r(file->name), "-o", ffname_r(file->name), NULL) == -1) {
+                perror("execl()");
+                exit(1);
+            }
       }
       /* Copy stdin to stdout unchanged. */
       if (file->name == NULL)
